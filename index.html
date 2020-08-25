@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>puissance 4</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="currentPlayer">
+</div>
+
+<div class="game">
+
+</div>
+
+<button type="button" id="undo">Annuler le dernier coup</button>
+<button type="button" id="replay">Rejouer</button>
+
+<br>
+
+<div class="controls">
+    <p id="p1">Joueur 1:</p><h1 id="playerOne">0</h1>
+    <p id="p2">Joueur 2:</p><h1 id="playerTwo">0</h1>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        (function($) {
+            $.fn.game = function(width, height, color1, color2, player1, player2)
+            {
+                let game = $(".game");
+
+                class Main {
+                    constructor(width, height, color1, color2, player1, player2) {
+                        this.w = width;
+                        this.h = height;
+                        this.color1 = color1;
+                        this.color2 = color2;
+                        this.player1 = player1;
+                        this.player2 = player2;
+
+                        $("#p1").html(this.player1);
+                        $("#p2").html(this.player2);
+                    }
+
+                    draw() {
+                        $("#undo").hide();
+                        for (let i = 0; i < this.w; i++) {
+                            game.append("<br><div class='cell empty' data-col='0' data-row='"+i+"' id='a'></div>  ");
+                            for (let h = 1; h < this.h; h++) {
+                                game.append("<div class='cell empty' data-col='"+h+"' data-row='"+i+"' id='a'></div>  ");
+                            }
+                        }
+
+                        let total = this.w * this.h;
+
+                        for (let i = 1; i <= total; i++) {
+                            let t = $("#a").attr('id');
+                            if(t === "a") {
+                                $("#a").attr("id", i)
+                            }
+                        }
+                    }
+
+                    win() {
+                        let color1 = this.color1;
+                        let color2 = this.color2;
+
+                        let n1 = $(".cell").hasClass(color1);
+                        let n2 = $(".cell").hasClass(color2);
+
+                        let p1 = this.player1;
+                        let p2 = this.player2;
+
+                        let longueur = this.w;
+                        let hauteur = this.h;
+
+                        let cell = $(".cell");
+
+                        function setScore(player) {
+                            if(player === p1) {
+                                let score1 = $("#playerOne").text();
+                                if(parseInt(score1) === 0) {
+                                    $("#playerOne").html("1");
+                                } else {
+                                    let add = parseInt(score1) + 1;
+                                    $("#playerOne").html(add);
+                                }
+                            } else if (player === p2) {
+                                let score2 = $("#playerTwo").text();
+                                if(parseInt(score2) === 0) {
+                                    $("#playerTwo").html("1");
+                                } else {
+                                    let add = parseInt(score2) + 1;
+                                    $("#playerTwo").html(add);
+                                }
+                            }
+                        }
+
+                        function winSpeaker(value, player) {
+                            if(value === true) {
+                                $("#win").show();
+                                alert("Victoire de: "+player);
+                                setScore(player);
+
+                                $("."+color1).addClass("empty");
+                                $("."+color2).addClass("empty");
+
+                                $("."+color1).removeClass(color1);
+                                $("."+color2).removeClass(color2);
+
+                                $("#undo").hide();
+                            }
+                        }
+
+                        $(".cell").click(function () {
+                            //PARTIE NULLE
+                            let cellEmpty = cell.hasClass("empty");
+                            if(cellEmpty.length === 0) {
+                                alert("Aucun gagnant");
+                                $("."+color1).addClass("empty");
+                                $("."+color2).addClass("empty");
+
+                                $("."+color1).removeClass("."+color1);
+                                $("."+color2).removeClass("."+color2);
+                            }
+
+                        //VERIF HORIZONTALE
+                            for(let i = 1; i <= cell.length; i++) {
+                                if($("#"+i).hasClass(color1)) {
+                                    let last1 = $("#"+i).prev();
+                                    if(last1.hasClass(color1)) {
+                                        let last2 = last1.prev();
+                                        if(last2.hasClass(color1)) {
+                                            let last3 = last2.prev();
+                                            if(last3.hasClass(color1)) {
+                                                winSpeaker(true, p2);
+                                            }
+                                        }
+                                    }
+                                }  else if ($("#"+i).hasClass(color2)) {
+                                    let last1 = $("#"+i).prev();
+                                    if(last1.hasClass(color2)) {
+                                        let last2 = last1.prev();
+                                        if(last2.hasClass(color2)) {
+                                            let last3 = last2.prev();
+                                            if(last3.hasClass(color2)) {
+                                                winSpeaker(true, p1);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            //VERIF VERTICALE
+                            for (let c = 1; c <= cell.length; c++) {
+                                    let cellRow = $("#"+c);
+                                    if(cellRow.hasClass(color1)) {
+                                        let nextCell = c + longueur;
+                                        if($("#"+nextCell).hasClass(color1)) {
+                                            let nextCell2 = nextCell + longueur;
+                                            if($("#"+nextCell2).hasClass(color1)) {
+                                                let nextCell3 = nextCell2 + longueur;
+                                                if($("#"+nextCell3).hasClass(color1)) {
+                                                    winSpeaker(true, p2);
+                                                }
+                                            }
+                                        }
+                                } else if (cellRow.hasClass(color2)) {
+                                        let nextCell = c + longueur;
+                                        if($("#"+nextCell).hasClass(color2)) {
+                                            let nextCell2 = nextCell + longueur;
+                                            if($("#"+nextCell2).hasClass(color2)) {
+                                                let nextCell3 = nextCell2 + longueur;
+                                                if($("#"+nextCell3).hasClass(color2)) {
+                                                    winSpeaker(true, p1);
+                                                }
+                                            }
+                                        }
+                                    }
+                            }
+
+                            //VERIF DIAGONALE DROITE
+                            for (let c = 1; c <= cell.length; c++) {
+                                let cellRow = $("#"+c);
+                                if(cellRow.hasClass(color1)) {
+                                    let nextCell = c + longueur + 1;
+                                    if($("#"+nextCell).hasClass(color1)) {
+                                        let nextCell2 = nextCell + longueur + 1;
+                                        if($("#"+nextCell2).hasClass(color1)) {
+                                            let nextCell3 = nextCell2 + longueur + 1;
+                                            if($("#"+nextCell3).hasClass(color1)) {
+                                                winSpeaker(true, p2);
+                                            }
+                                        }
+                                    }
+                                } else if (cellRow.hasClass(color2)) {
+                                    let nextCell = c + longueur + 1;
+                                    if($("#"+nextCell).hasClass(color2)) {
+                                        let nextCell2 = nextCell + longueur + 1;
+                                        if($("#"+nextCell2).hasClass(color2)) {
+                                            let nextCell3 = nextCell2 + longueur + 1;
+                                            if($("#"+nextCell3).hasClass(color2)) {
+                                                winSpeaker(true, p1);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            //VERIF DIAGONALE GAUCHE
+                            for (let c = 1; c <= cell.length; c++) {
+                                let cellRow = $("#"+c);
+                                if(cellRow.hasClass(color1)) {
+                                    let nextCell = c + longueur - 1;
+                                    if($("#"+nextCell).hasClass(color1)) {
+                                        let nextCell2 = nextCell + longueur - 1;
+                                        if($("#"+nextCell2).hasClass(color1)) {
+                                            let nextCell3 = nextCell2 + longueur - 1;
+                                            if($("#"+nextCell3).hasClass(color1)) {
+                                                winSpeaker(true, p2);
+                                            }
+                                        }
+                                    }
+                                } else if (cellRow.hasClass(color2)) {
+                                    let nextCell = c + longueur - 1;
+                                    if($("#"+nextCell).hasClass(color2)) {
+                                        let nextCell2 = nextCell + longueur - 1;
+                                        if($("#"+nextCell2).hasClass(color2)) {
+                                            let nextCell3 = nextCell2 + longueur - 1;
+                                            if($("#"+nextCell3).hasClass(color2)) {
+                                                winSpeaker(true, p1);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+
+                    play() {
+                        let player = [1];
+
+                        let player1 = this.player1;
+                        let player2 = this.player2;
+
+                        let color1 = this.color1;
+                        let color2 = this.color2;
+
+                        $("#currentPlayer").html("<b>Au tour de : </b>"+player1);
+                        
+                        function getLastCase(col) {
+                            const LastCol = $(".cell[data-col='"+col+"']");
+                            for (let i = LastCol.length - 1; i >= 0; i--) {
+                                let cell = $(LastCol[i]);
+                                if(cell.hasClass("empty")) {
+                                    return cell;
+                                }
+                            }
+                            return null;
+                        }
+
+                        $(".cell").click(function (e) {
+                            e.preventDefault();
+                            $("#undo").show();
+
+                            if ($(this).hasClass(color1)) {
+                                return false;
+                            }
+                            if ($(this).hasClass(color2)) {
+                                return false;
+                            }
+
+                            if (player[0] === 1) {
+                                const col = $(this).attr("data-col");
+
+                                let cell = getLastCase(col);
+                                cell.removeClass("empty");
+                                cell.addClass(color2);
+
+                                player.splice(0, 1);
+                                player.push(2);
+                                $("#currentPlayer").html("<b>Au tour de : </b>"+player2);
+
+                                return;
+                            }
+
+                            if (player[0] === 2) {
+                                const col = $(this).attr("data-col");
+
+                                let cell = getLastCase(col);
+                                cell.removeClass("empty");
+                                cell.addClass(color1);
+
+                                player.splice(0, 1);
+                                player.push(1);
+                                $("#currentPlayer").html("<b>Au tour de : </b>"+player1);
+
+                            }
+
+                        });
+
+                        $("#replay").click(function () {
+                            $("."+color1).addClass("empty");
+                            $("."+color2).addClass("empty");
+
+                            $("."+color1).removeClass(color1);
+                            $("."+color2).removeClass(color2);
+
+                            $("#undo").hide();
+                        });
+
+                    }
+
+                }
+
+                let w = width;
+                let h = height;
+                let c1 = color1;
+                let c2 = color2;
+                let p1 = player1;
+                let p2 = player2;
+
+                const main = new Main(w, h, c1, c2, p1, p2);
+                main.draw();
+                main.play();
+                main.win();
+
+            };
+        })(jQuery);
+
+        $("#form").game(8, 8, "red", "yellow", "vico", "joueur 2");
+    });
+</script>
+</body>
+</html>
